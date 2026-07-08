@@ -47,6 +47,7 @@ function Achievements() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
+      <PageBackdrop accent="achievements" />
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Module 03</div>
