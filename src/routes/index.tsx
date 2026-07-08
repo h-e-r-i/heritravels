@@ -8,6 +8,7 @@ import bgWeather from "../assets/bg-weather.jpg";
 import bgAi from "../assets/bg-ai.jpg";
 import bgBooking from "../assets/bg-booking.jpg";
 import bgAchievements from "../assets/bg-achievements.jpg";
+import { trackAction } from "@/lib/achievements";
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
@@ -129,6 +130,7 @@ function Cockpit() {
             <Link
               key={f.tag}
               to={f.to}
+              onClick={() => trackAction("feature_opened", { feature: f.tag })}
               className="group relative overflow-hidden rounded-2xl border border-border/60 p-5 min-h-[150px] transition hover:-translate-y-0.5 hover:border-primary/50"
             >
               <img
