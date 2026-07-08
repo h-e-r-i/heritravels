@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import bgNavigation from "../assets/bg-navigation.jpg";
+import { trackAction } from "@/lib/achievements";
+
 
 
 export const Route = createFileRoute("/navigator")({
