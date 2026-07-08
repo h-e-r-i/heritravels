@@ -57,6 +57,7 @@ function AgentPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-8">
+      <PageBackdrop accent="ai" />
       {/* Header */}
       <div className="flex items-center gap-4">
         <div className="relative">
