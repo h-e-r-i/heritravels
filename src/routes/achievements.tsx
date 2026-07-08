@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { resetProgress, trackAction, useAchievements, type Milestone } from "@/lib/achievements";
 import bgAchievements from "../assets/bg-achievements.jpg";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/achievements")({
   component: Achievements,
@@ -46,6 +47,7 @@ function Achievements() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
+      <PageBackdrop accent="achievements" />
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Module 03</div>

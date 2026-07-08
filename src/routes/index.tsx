@@ -9,6 +9,7 @@ import bgAi from "../assets/bg-ai.jpg";
 import bgBooking from "../assets/bg-booking.jpg";
 import bgAchievements from "../assets/bg-achievements.jpg";
 import { trackAction } from "@/lib/achievements";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
@@ -57,6 +58,7 @@ function Cockpit() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10 md:py-16">
+      <PageBackdrop accent="flight" />
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl glass-panel px-6 py-12 md:px-14 md:py-20">
         <img

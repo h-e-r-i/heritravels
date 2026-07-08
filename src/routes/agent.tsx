@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 
 import heriLogo from "../assets/heri-logo.png.asset.json";
 import { trackAction } from "@/lib/achievements";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/agent")({
   component: AgentPage,
@@ -56,6 +57,7 @@ function AgentPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-8">
+      <PageBackdrop accent="ai" />
       {/* Header */}
       <div className="flex items-center gap-4">
         <div className="relative">
