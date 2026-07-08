@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { resetProgress, trackAction, useAchievements, type Milestone } from "@/lib/achievements";
 import bgAchievements from "../assets/bg-achievements.jpg";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/achievements")({
   component: Achievements,
