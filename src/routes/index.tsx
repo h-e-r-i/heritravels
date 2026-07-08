@@ -9,6 +9,7 @@ import bgAi from "../assets/bg-ai.jpg";
 import bgBooking from "../assets/bg-booking.jpg";
 import bgAchievements from "../assets/bg-achievements.jpg";
 import { trackAction } from "@/lib/achievements";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
