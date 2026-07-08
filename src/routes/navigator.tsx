@@ -131,6 +131,7 @@ function Navigator() {
                     href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=${mode}`}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => trackAction("route_planned")}
                     className="rounded-full bg-signal/90 hover:bg-signal text-primary-foreground px-4 py-2 text-xs font-semibold transition"
                   >
                     GO
