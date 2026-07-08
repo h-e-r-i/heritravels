@@ -20,6 +20,7 @@ import "@fontsource/inter/600.css";
 import heriLogo from "../assets/heri-logo.png.asset.json";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AchievementToaster } from "../components/AchievementToaster";
 
 function NotFoundComponent() {
   return (
