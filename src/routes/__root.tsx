@@ -194,7 +194,9 @@ function RootComponent() {
         <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground">
           <span className="tracking-[0.3em] uppercase">H.E.R.I • Higher Evolution Remote Intelligence</span>
         </footer>
+        <AchievementToaster />
       </div>
+
     </QueryClientProvider>
   );
 }
