@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 
 import heriLogo from "../assets/heri-logo.png.asset.json";
 import { trackAction } from "@/lib/achievements";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/agent")({
   component: AgentPage,
