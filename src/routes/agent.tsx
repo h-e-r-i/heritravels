@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import heriLogo from "../assets/heri-logo.png.asset.json";
+import { trackAction } from "@/lib/achievements";
 
 export const Route = createFileRoute("/agent")({
   component: AgentPage,
@@ -48,8 +49,10 @@ function AgentPage() {
     const value = text.trim();
     if (!value || busy) return;
     sendMessage({ text: value });
+    trackAction("chat_sent");
     setInput("");
   };
+
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-8">

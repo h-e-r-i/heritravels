@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import bgNavigation from "../assets/bg-navigation.jpg";
+import { trackAction } from "@/lib/achievements";
+
 
 
 export const Route = createFileRoute("/navigator")({
@@ -57,7 +59,18 @@ function Navigator() {
     (c.name + c.country).toLowerCase().includes(q.toLowerCase()),
   );
 
+  useEffect(() => { trackAction("navigator_visited"); }, []);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (q.trim().length >= 2 && filtered.length > 0) trackAction("city_searched", { city: filtered[0].name });
+    }, 600);
+    return () => clearTimeout(t);
+  }, [q, filtered]);
+
+  const chooseMode = (m: typeof mode) => { setMode(m); trackAction("mode_switched", { mode: m }); };
+
   const mapSrc = `https://www.google.com/maps?output=embed&hl=en&z=6&saddr=${encodeURIComponent(from)}&daddr=${encodeURIComponent(to)}`;
+
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
@@ -100,7 +113,7 @@ function Navigator() {
                 {(["driving","flying","transit","walking"] as const).map((m) => (
                   <button
                     key={m}
-                    onClick={() => setMode(m)}
+                    onClick={() => chooseMode(m)}
                     className={`flex-1 rounded-full px-2 py-1.5 capitalize transition ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {m === "driving" ? "🚗 Drive" : m === "flying" ? "✈️ Flight" : m === "transit" ? "🚆 Train" : "🚶 Walk"}
@@ -118,6 +131,7 @@ function Navigator() {
                     href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=${mode}`}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => trackAction("route_planned")}
                     className="rounded-full bg-signal/90 hover:bg-signal text-primary-foreground px-4 py-2 text-xs font-semibold transition"
                   >
                     GO

@@ -20,6 +20,7 @@ import "@fontsource/inter/600.css";
 import heriLogo from "../assets/heri-logo.png.asset.json";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AchievementToaster } from "../components/AchievementToaster";
 
 function NotFoundComponent() {
   return (
@@ -193,7 +194,9 @@ function RootComponent() {
         <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground">
           <span className="tracking-[0.3em] uppercase">H.E.R.I • Higher Evolution Remote Intelligence</span>
         </footer>
+        <AchievementToaster />
       </div>
+
     </QueryClientProvider>
   );
 }
