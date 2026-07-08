@@ -59,7 +59,18 @@ function Navigator() {
     (c.name + c.country).toLowerCase().includes(q.toLowerCase()),
   );
 
+  useEffect(() => { trackAction("navigator_visited"); }, []);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (q.trim().length >= 2 && filtered.length > 0) trackAction("city_searched", { city: filtered[0].name });
+    }, 600);
+    return () => clearTimeout(t);
+  }, [q, filtered]);
+
+  const chooseMode = (m: typeof mode) => { setMode(m); trackAction("mode_switched", { mode: m }); };
+
   const mapSrc = `https://www.google.com/maps?output=embed&hl=en&z=6&saddr=${encodeURIComponent(from)}&daddr=${encodeURIComponent(to)}`;
+
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
