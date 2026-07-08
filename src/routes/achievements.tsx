@@ -1,56 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { resetProgress, trackAction, useAchievements, type Milestone } from "@/lib/achievements";
+import bgAchievements from "../assets/bg-achievements.jpg";
 
 export const Route = createFileRoute("/achievements")({
   component: Achievements,
   head: () => ({
     meta: [
       { title: "Achievements — H.E.R.I" },
-      { name: "description", content: "Turn exploration into a game. Badges, streaks and prizes for the places you visit." },
+      { name: "description", content: "Real progress tracking. Every action in the H.E.R.I cockpit becomes a milestone." },
     ],
     links: [{ rel: "canonical", href: "/achievements" }],
   }),
 });
 
-type Badge = {
-  name: string;
-  place: string;
-  earned: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
-  icon: string;
-  desc: string;
-};
-
-const rarityStyles: Record<Badge["rarity"], string> = {
+const rarityStyles: Record<Milestone["rarity"], string> = {
   common: "border-border text-muted-foreground",
   rare: "border-primary/60 text-primary-glow",
   epic: "border-electric/70 text-electric",
-  legendary:
-    "border-signal/80 text-signal shadow-[0_0_25px_-5px_oklch(0.85_0.14_190_/_0.6)]",
+  legendary: "border-signal/80 text-signal shadow-[0_0_25px_-5px_oklch(0.85_0.14_190_/_0.6)]",
 };
 
-const badges: Badge[] = [
-  { name: "Mount Kenya Ascent",   place: "Kenya",     earned: true,  rarity: "legendary", icon: "🏔️", desc: "Summit reached above 4,000m." },
-  { name: "Serengeti Safari",     place: "Tanzania",  earned: true,  rarity: "epic",      icon: "🦁", desc: "Big Five spotted in one visit." },
-  { name: "Zanzibar Sailor",      place: "Zanzibar",  earned: true,  rarity: "rare",      icon: "⛵", desc: "Sailed a traditional dhow at sunset." },
-  { name: "Pyramid Explorer",     place: "Egypt",     earned: true,  rarity: "epic",      icon: "🔺", desc: "Visited the Giza plateau." },
-  { name: "Cape Point",           place: "S. Africa", earned: true,  rarity: "rare",      icon: "🌊", desc: "Stood where two oceans meet." },
-  { name: "Gorilla Whisperer",    place: "Rwanda",    earned: false, rarity: "legendary", icon: "🦍", desc: "Trek to the mountain gorillas." },
-  { name: "Sahara Nomad",         place: "Morocco",   earned: false, rarity: "epic",      icon: "🐪", desc: "Overnight under the dunes." },
-  { name: "Victoria Falls Roar",  place: "Zambia",    earned: false, rarity: "rare",      icon: "💧", desc: "Feel the mist of Mosi-oa-Tunya." },
-  { name: "Nile Source",          place: "Uganda",    earned: false, rarity: "common",    icon: "🚣", desc: "Reach the source at Jinja." },
-];
-
-const leaderboard = [
-  { rank: 1, name: "Amara N.",    country: "🇰🇪", pts: 4820 },
-  { rank: 2, name: "You",         country: "🇺🇬", pts: 3410, you: true },
-  { rank: 3, name: "Kwame O.",    country: "🇬🇭", pts: 3105 },
-  { rank: 4, name: "Zara M.",     country: "🇹🇿", pts: 2780 },
-  { rank: 5, name: "Thabo D.",    country: "🇿🇦", pts: 2410 },
-];
+const actionLabels: Record<string, string> = {
+  chat_sent: "messages sent",
+  route_planned: "routes planned",
+  city_searched: "cities searched",
+  feature_opened: "features opened",
+  mode_switched: "travel modes tried",
+  navigator_visited: "navigator visits",
+};
 
 function Achievements() {
-  const earned = badges.filter((b) => b.earned).length;
-  const pct = Math.round((earned / badges.length) * 100);
+  useEffect(() => { trackAction("achievements_visited"); }, []);
+  const { state, totalPoints, unlockedCount, milestones } = useAchievements();
+
+  const pct = Math.round((unlockedCount / milestones.length) * 100);
+  const level = 1 + Math.floor(totalPoints / 300);
+  const nextLevelPts = level * 300;
+  const levelPct = Math.min(100, Math.round((totalPoints / nextLevelPts) * 100));
+
+  const recentUnlocks = milestones
+    .filter((m) => state.unlocked[m.id])
+    .sort((a, b) => state.unlocked[b.id] - state.unlocked[a.id])
+    .slice(0, 5);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
@@ -60,96 +52,107 @@ function Achievements() {
           <h1 className="font-display text-3xl md:text-4xl font-semibold">
             Wings of <span className="text-gradient-electric">Excellence</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Every place you visit becomes a stamp in your journey.
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Every action across H.E.R.I turns into real progress here.</p>
         </div>
+        <button
+          onClick={() => { if (confirm("Reset all achievement progress?")) resetProgress(); }}
+          className="rounded-full border border-border/60 bg-surface/60 px-4 py-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground hover:border-destructive/60 transition"
+        >
+          Reset progress
+        </button>
       </div>
 
-      {/* Progress bar */}
-      <section className="mt-8 glass-panel rounded-2xl p-6">
-        <div className="flex items-center justify-between">
+      {/* HERO STATS */}
+      <section className="mt-8 relative overflow-hidden rounded-2xl glass-panel p-6">
+        <img src={bgAchievements} alt="" aria-hidden="true" loading="lazy" width={1600} height={900} className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+        <div className="relative grid gap-6 md:grid-cols-4 items-center">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Explorer level</div>
-            <div className="font-display text-3xl">Skyfarer <span className="text-muted-foreground text-lg">/ V</span></div>
-          </div>
-          <div className="text-right">
-            <div className="font-display text-2xl text-gradient-electric">{earned}<span className="text-muted-foreground text-base"> / {badges.length}</span></div>
-            <div className="text-xs text-muted-foreground">Badges collected</div>
-          </div>
-        </div>
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-surface-2">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-primary via-electric to-signal transition-all"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <div className="mt-2 text-xs text-muted-foreground">
-          {pct}% complete — next reward at 60%: <span className="text-primary-glow">free tour in Marrakech</span>.
-        </div>
-      </section>
-
-      {/* Badges */}
-      <section className="mt-8">
-        <h2 className="font-display text-lg font-semibold mb-3">Badge collection</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {badges.map((b) => (
-            <div
-              key={b.name}
-              className={`relative rounded-2xl border p-5 transition ${
-                b.earned
-                  ? `glass-panel ${rarityStyles[b.rarity]} hover:-translate-y-0.5`
-                  : "border-border/50 bg-surface/30 text-muted-foreground opacity-70"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="text-4xl grayscale-0" style={{ filter: b.earned ? "none" : "grayscale(1) opacity(0.6)" }}>
-                  {b.icon}
-                </div>
-                <span
-                  className={`text-[10px] uppercase tracking-[0.2em] rounded-full border px-2 py-0.5 ${rarityStyles[b.rarity]}`}
-                >
-                  {b.rarity}
-                </span>
-              </div>
-              <div className="mt-3 font-display text-base font-semibold">{b.name}</div>
-              <div className="text-xs text-muted-foreground">{b.place}</div>
-              <p className="mt-2 text-xs text-muted-foreground/80">{b.desc}</p>
-              {!b.earned && (
-                <div className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground">🔒 Locked</div>
-              )}
+            <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Level</div>
+            <div className="font-display text-5xl text-gradient-electric">{level}</div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+              <div className="h-full rounded-full bg-gradient-to-r from-primary to-electric transition-all" style={{ width: `${levelPct}%` }} />
             </div>
-          ))}
+            <div className="text-[10px] text-muted-foreground mt-1">{totalPoints} / {nextLevelPts} pts</div>
+          </div>
+          <Stat label="Points" value={totalPoints.toLocaleString()} tone="text-electric" />
+          <Stat label="Badges" value={`${unlockedCount} / ${milestones.length}`} tone="text-primary-glow" />
+          <Stat label="Completion" value={`${pct}%`} tone="text-signal" />
         </div>
       </section>
 
-      {/* Leaderboard */}
-      <section className="mt-10 glass-panel rounded-2xl p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Global explorers · this week</h2>
-          <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Africa & beyond</span>
-        </div>
-        <div className="mt-4 divide-y divide-border/40">
-          {leaderboard.map((row) => (
-            <div
-              key={row.rank}
-              className={`flex items-center justify-between py-3 ${row.you ? "text-electric" : ""}`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="font-display text-lg w-6 text-right">{row.rank}</span>
-                <span className="text-xl">{row.country}</span>
-                <span className="font-medium">{row.name}</span>
-                {row.you && (
-                  <span className="text-[10px] uppercase tracking-widest rounded-full border border-electric/60 px-2 py-0.5">
-                    You
+      {/* RECENT UNLOCKS */}
+      {recentUnlocks.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-lg font-semibold mb-3">Recent unlocks</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {recentUnlocks.map((m) => (
+              <div key={m.id} className={`glass-panel rounded-2xl p-4 border ${rarityStyles[m.rarity]}`}>
+                <div className="text-3xl">{m.icon}</div>
+                <div className="mt-2 font-display text-sm font-semibold">{m.name}</div>
+                <div className="text-[10px] text-muted-foreground">{new Date(state.unlocked[m.id]).toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* MILESTONES */}
+      <section className="mt-10">
+        <h2 className="font-display text-lg font-semibold mb-3">Milestones</h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          Do things across the app — chat with H.E.R.I, plan routes, explore the dashboard — to fill these up.
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {milestones.map((m) => {
+            const current = Math.min(state.counters[m.action] ?? 0, m.target);
+            const p = Math.round((current / m.target) * 100);
+            const done = !!state.unlocked[m.id];
+            return (
+              <div
+                key={m.id}
+                className={`relative rounded-2xl border p-5 transition ${
+                  done ? `glass-panel ${rarityStyles[m.rarity]}` : "border-border/60 bg-surface/40"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="text-4xl" style={{ filter: done ? "none" : "grayscale(1) opacity(0.55)" }}>{m.icon}</div>
+                  <span className={`text-[10px] uppercase tracking-[0.2em] rounded-full border px-2 py-0.5 ${rarityStyles[m.rarity]}`}>
+                    {m.rarity}
                   </span>
-                )}
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="font-display text-base font-semibold">{m.name}</div>
+                  <div className="text-xs text-signal">+{m.points}</div>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{m.desc}</p>
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <span>{current} / {m.target} {actionLabels[m.action] ?? m.action}</span>
+                    <span>{done ? "✓ Unlocked" : `${p}%`}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+                    <div
+                      className={`h-full rounded-full transition-all ${done ? "bg-gradient-to-r from-signal to-electric" : "bg-gradient-to-r from-primary to-electric"}`}
+                      style={{ width: `${p}%` }}
+                    />
+                  </div>
+                </div>
               </div>
-              <span className="font-display">{row.pts.toLocaleString()} pts</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className="rounded-xl border border-border/50 bg-background/40 p-4">
+      <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{label}</div>
+      <div className={`mt-1 font-display text-3xl font-semibold ${tone}`}>{value}</div>
     </div>
   );
 }
