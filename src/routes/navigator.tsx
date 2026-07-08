@@ -113,7 +113,7 @@ function Navigator() {
                 {(["driving","flying","transit","walking"] as const).map((m) => (
                   <button
                     key={m}
-                    onClick={() => setMode(m)}
+                    onClick={() => chooseMode(m)}
                     className={`flex-1 rounded-full px-2 py-1.5 capitalize transition ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {m === "driving" ? "🚗 Drive" : m === "flying" ? "✈️ Flight" : m === "transit" ? "🚆 Train" : "🚶 Walk"}
