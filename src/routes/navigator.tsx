@@ -50,9 +50,14 @@ const routes = [
 
 function Navigator() {
   const [q, setQ] = useState("");
+  const [from, setFrom] = useState("Nairobi, Kenya");
+  const [to, setTo] = useState("Kilimanjaro National Park");
+  const [mode, setMode] = useState<"driving" | "flying" | "transit" | "walking">("driving");
   const filtered = cities.filter((c) =>
     (c.name + c.country).toLowerCase().includes(q.toLowerCase()),
   );
+
+  const mapSrc = `https://www.google.com/maps?output=embed&hl=en&z=6&saddr=${encodeURIComponent(from)}&daddr=${encodeURIComponent(to)}`;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
@@ -71,6 +76,79 @@ function Navigator() {
           />
         </div>
       </div>
+
+      {/* LIVE MAP */}
+      <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_1.6fr]">
+        <div className="glass-panel rounded-2xl p-5 relative overflow-hidden">
+          <img src={bgNavigation} alt="" aria-hidden="true" loading="lazy" width={1600} height={900} className="absolute inset-0 h-full w-full object-cover opacity-20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 to-background/90" />
+          <div className="relative">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Route planner</div>
+            <h2 className="font-display text-lg font-semibold mt-1">Where are you flying?</h2>
+
+            <div className="mt-4 space-y-3">
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">From</span>
+                <input value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary" />
+              </label>
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">To</span>
+                <input value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary" />
+              </label>
+
+              <div className="flex gap-1 rounded-full border border-border/60 bg-surface/60 p-1 text-xs">
+                {(["driving","flying","transit","walking"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`flex-1 rounded-full px-2 py-1.5 capitalize transition ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {m === "driving" ? "🚗 Drive" : m === "flying" ? "✈️ Flight" : m === "transit" ? "🚆 Train" : "🚶 Walk"}
+                  </button>
+                ))}
+              </div>
+
+              <div className="rounded-xl border border-primary/40 bg-primary/10 p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-display text-2xl text-gradient-electric">5h 48m</div>
+                    <div className="text-xs text-muted-foreground">Best route · 320 km via A104</div>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=${mode}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full bg-signal/90 hover:bg-signal text-primary-foreground px-4 py-2 text-xs font-semibold transition"
+                  >
+                    GO
+                  </a>
+                </div>
+                <div className="mt-3 space-y-2 text-xs">
+                  <div className="flex justify-between rounded-lg border border-border/60 bg-background/40 px-3 py-2">
+                    <span>6h 10m · 335 km</span><span className="text-muted-foreground">via B1</span>
+                  </div>
+                  <div className="flex justify-between rounded-lg border border-border/60 bg-background/40 px-3 py-2">
+                    <span>6h 35m · 360 km</span><span className="text-muted-foreground">via C103</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-2xl p-2 relative overflow-hidden min-h-[420px]">
+          <iframe
+            title="H.E.R.I live map"
+            src={mapSrc}
+            className="h-full min-h-[420px] w-full rounded-xl border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+        </div>
+      </section>
+
+
 
       {/* WEATHER GRID */}
       <section className="mt-8">
