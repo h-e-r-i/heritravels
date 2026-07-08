@@ -2,6 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import heriLogo from "../assets/heri-logo.png.asset.json";
+import bgFlight from "../assets/bg-flight.jpg";
+import bgNavigation from "../assets/bg-navigation.jpg";
+import bgWeather from "../assets/bg-weather.jpg";
+import bgAi from "../assets/bg-ai.jpg";
+import bgBooking from "../assets/bg-booking.jpg";
+import bgAchievements from "../assets/bg-achievements.jpg";
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
@@ -14,42 +20,30 @@ const missionMetrics = [
   { label: "Streak", value: "14d", sub: "of exploring", tone: "text-electric" },
 ];
 
-const liveTiles = [
-  {
-    tag: "Atmosphere",
-    title: "Nairobi",
-    reading: "23°C",
-    detail: "Partly cloudy · Wind 12 km/h NE · UV 6",
-    accent: "from-primary/40 to-electric/10",
-  },
-  {
-    tag: "Flight",
-    title: "KQ 100",
-    reading: "On time",
-    detail: "NBO → LHR · Gate 24 · Boarding 21:40",
-    accent: "from-electric/40 to-signal/10",
-  },
-  {
-    tag: "Vitals",
-    title: "Body",
-    reading: "72 bpm",
-    detail: "Resting · SpO₂ 98% · Hydration OK",
-    accent: "from-signal/40 to-primary/10",
-  },
+const features = [
+  { to: "/navigator", tag: "Travel & Navigation", body: "Plan trips, get directions", icon: "🧭", bg: bgNavigation },
+  { to: "/navigator", tag: "Weather",             body: "Real-time forecasts",     icon: "⛅", bg: bgWeather },
+  { to: "/navigator", tag: "Booking",             body: "Flights, hotels, transport", icon: "🧳", bg: bgBooking },
+  { to: "/agent",     tag: "AI Assistant",        body: "Ask anything, get help",  icon: "🤖", bg: bgAi },
+  { to: "/agent",     tag: "Health Monitor",      body: "Track your body condition", icon: "❤️", bg: bgWeather },
+  { to: "/agent",     tag: "Communication",       body: "Stay connected anytime",  icon: "📡", bg: bgAi },
+  { to: "/achievements", tag: "Culture & Tourism", body: "Explore places, languages & more", icon: "🏛️", bg: bgAchievements },
+  { to: "/achievements", tag: "Achievements",     body: "Earn badges, unlock rewards", icon: "🏆", bg: bgAchievements },
+  { to: "/agent",     tag: "Occupation Hub",      body: "Tools & support for your work", icon: "💼", bg: bgBooking },
+];
+
+const notifications = [
+  { kind: "Weather Alert",       time: "08:30 AM", body: "Heavy rain expected in Nairobi tomorrow. Plan accordingly.", dot: "bg-signal" },
+  { kind: "Flight Update",       time: "07:45 AM", body: "Your flight to Mombasa is now on time. Departure 14:30.", dot: "bg-primary" },
+  { kind: "Achievement Unlocked",time: "06:20 AM", body: "Congratulations! You visited a new place: Zanzibar.",     dot: "bg-electric" },
+  { kind: "Reminder",            time: "06:00 AM", body: "Don't forget your booking at Serena Hotel today.",         dot: "bg-primary-glow" },
 ];
 
 function useTicker() {
   const [now, setNow] = useState<string>("");
   useEffect(() => {
     const tick = () =>
-      setNow(
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        }),
-      );
+      setNow(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -64,7 +58,15 @@ function Cockpit() {
     <div className="mx-auto max-w-7xl px-5 py-10 md:py-16">
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl glass-panel px-6 py-12 md:px-14 md:py-20">
-        {/* orbits */}
+        <img
+          src={bgFlight}
+          alt=""
+          aria-hidden="true"
+          width={1600}
+          height={900}
+          className="absolute inset-0 h-full w-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90" />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-40">
           <div className="orbit-ring h-[560px] w-[560px] animate-[orbit-spin_60s_linear_infinite]" />
           <div className="orbit-ring absolute h-[380px] w-[380px] animate-[orbit-spin-reverse_45s_linear_infinite]" />
@@ -79,24 +81,16 @@ function Cockpit() {
             </div>
             <h1 className="mt-5 font-display text-4xl md:text-6xl font-semibold leading-[1.05]">
               Your <span className="text-gradient-electric">copilot</span>
-              <br />
-              for everywhere.
+              <br />for everywhere.
             </h1>
             <p className="mt-5 max-w-lg text-base text-muted-foreground">
-              H.E.R.I fuses weather, flights, road transport, culture and body
-              vitals into one calm cockpit. Karibu — welcome aboard.
+              H.E.R.I fuses weather, flights, road transport, culture and body vitals into one calm cockpit. Karibu — welcome aboard.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/agent"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-electric px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition"
-              >
+              <Link to="/agent" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-electric px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition">
                 Talk to H.E.R.I →
               </Link>
-              <Link
-                to="/navigator"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-6 py-3 text-sm font-medium hover:bg-accent transition"
-              >
+              <Link to="/navigator" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-6 py-3 text-sm font-medium hover:bg-accent transition">
                 Open Navigator
               </Link>
             </div>
@@ -104,11 +98,7 @@ function Cockpit() {
 
           <div className="relative flex items-center justify-center">
             <div className="absolute inset-0 rounded-full blur-3xl bg-primary/30" />
-            <img
-              src={heriLogo.url}
-              alt="H.E.R.I emblem"
-              className="relative h-64 w-64 md:h-80 md:w-80 object-contain animate-[pulse-glow_4s_ease-in-out_infinite]"
-            />
+            <img src={heriLogo.url} alt="H.E.R.I emblem" className="relative h-64 w-64 md:h-80 md:w-80 object-contain animate-[pulse-glow_4s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
@@ -124,63 +114,83 @@ function Cockpit() {
         ))}
       </section>
 
-      {/* LIVE TILES */}
-      <section className="mt-8 grid gap-4 md:grid-cols-3">
-        {liveTiles.map((t) => (
-          <div
-            key={t.tag}
-            className={`glass-panel rounded-2xl p-6 relative overflow-hidden bg-gradient-to-br ${t.accent}`}
-          >
-            <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">{t.tag}</div>
-            <div className="mt-1 flex items-baseline justify-between gap-3">
-              <div className="font-display text-xl font-semibold">{t.title}</div>
-              <div className="font-display text-2xl text-gradient-electric">{t.reading}</div>
-            </div>
-            <div className="mt-3 text-sm text-muted-foreground">{t.detail}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* MODULES */}
+      {/* FEATURE GRID — mirrors the mockup */}
       <section className="mt-10">
-        <h2 className="font-display text-2xl font-semibold">Systems online</h2>
-        <p className="text-sm text-muted-foreground">Every module of the H.E.R.I platform, one tap away.</p>
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-2xl font-semibold">Your dashboard</h2>
+            <p className="text-sm text-muted-foreground">All features in one place — tap any pillar to launch it.</p>
+          </div>
+          <span className="hidden md:inline-flex text-[10px] uppercase tracking-[0.3em] text-muted-foreground">All-in-one intelligent support</span>
+        </div>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              to: "/navigator",
-              title: "Navigator",
-              body: "Weather, flights, routes and bookings on one radar screen.",
-              icon: "📡",
-            },
-            {
-              to: "/achievements",
-              title: "Achievements",
-              body: "Turn every trip into a game — badges, streaks, prizes for cultures explored.",
-              icon: "🏆",
-            },
-            {
-              to: "/agent",
-              title: "H.E.R.I Agent",
-              body: "The AI copilot: weather, culture, health, transport — real answers, fast.",
-              icon: "🛰",
-            },
-          ].map((c) => (
+        <div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3">
+          {features.map((f) => (
             <Link
-              key={c.to}
-              to={c.to}
-              className="glass-panel group rounded-2xl p-6 transition hover:border-primary/50 hover:-translate-y-0.5"
+              key={f.tag}
+              to={f.to}
+              className="group relative overflow-hidden rounded-2xl border border-border/60 p-5 min-h-[150px] transition hover:-translate-y-0.5 hover:border-primary/50"
             >
-              <div className="text-3xl">{c.icon}</div>
-              <div className="mt-3 font-display text-lg font-semibold">{c.title}</div>
-              <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
-              <div className="mt-4 text-xs uppercase tracking-[0.3em] text-primary group-hover:text-electric">
-                Enter →
+              <img
+                src={f.bg}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                width={1600}
+                height={900}
+                className="absolute inset-0 h-full w-full object-cover opacity-30 group-hover:opacity-50 transition"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-background/90 via-background/70 to-background/40" />
+              <div className="relative">
+                <div className="text-2xl">{f.icon}</div>
+                <div className="mt-3 font-display text-base font-semibold">{f.tag}</div>
+                <div className="text-xs text-muted-foreground">{f.body}</div>
+                <div className="mt-3 text-[10px] uppercase tracking-[0.3em] text-primary-glow group-hover:text-electric">Enter →</div>
               </div>
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* NOTIFICATIONS PANEL */}
+      <section className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="glass-panel rounded-2xl p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg font-semibold">Notifications</h3>
+            <div className="flex gap-1 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+              <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">All</span>
+              <span className="rounded-full px-2 py-0.5">Alerts</span>
+              <span className="rounded-full px-2 py-0.5">Rewards</span>
+            </div>
+          </div>
+          <div className="mt-4 divide-y divide-border/40">
+            {notifications.map((n) => (
+              <div key={n.kind} className="flex gap-3 py-3">
+                <span className={`mt-1 h-2 w-2 rounded-full ${n.dot} animate-pulse`} />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{n.kind}</span>
+                    <span className="text-xs text-muted-foreground">{n.time}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{n.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Link
+          to="/achievements"
+          className="relative overflow-hidden rounded-2xl border border-border/60 p-6 min-h-[240px] flex flex-col justify-end"
+        >
+          <img src={bgAchievements} alt="" aria-hidden="true" loading="lazy" width={1600} height={900} className="absolute inset-0 h-full w-full object-cover opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="relative">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-primary-glow">Your journey</div>
+            <div className="font-display text-2xl font-semibold mt-1">Keep exploring.<br/>Earn rewards.</div>
+            <div className="mt-3 text-xs text-muted-foreground">Level 12 · 2,450 pts · 18 countries · 25 badges</div>
+          </div>
+        </Link>
       </section>
     </div>
   );
