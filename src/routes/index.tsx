@@ -154,6 +154,9 @@ function Cockpit() {
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
+                decoding="async"
+                // @ts-expect-error - fetchpriority is a valid HTML attribute
+                fetchpriority="low"
                 width={1600}
                 height={900}
                 className="absolute inset-0 h-full w-full object-cover opacity-30 group-hover:opacity-50 transition"
