@@ -131,6 +131,22 @@ function Cockpit() {
         </div>
       </section>
 
+      {/* SLIDESHOW — everywhere H.E.R.I moves */}
+      <section className="mt-8">
+        <HeroSlideshow
+          className="h-[420px] md:h-[520px]"
+          slides={[
+            { src: slideAirport,   eyebrow: "Air · Hub",     title: "Land at every terminal.",         caption: "Track gates, tarmacs and tower comms across international airports." },
+            { src: slideRailway,   eyebrow: "Rail · Hub",    title: "Ride the fast lines.",            caption: "High-speed rail platforms and intercity schedules, in real time." },
+            { src: slidePort,      eyebrow: "Sea · Hub",     title: "Depart from the harbour.",         caption: "Cargo ports, cruise terminals and ferry timetables at a glance." },
+            { src: slideAirplane,  eyebrow: "Air · Vehicle", title: "Chase the horizon.",              caption: "Live flight boards, delays and gate changes as they happen." },
+            { src: slideSpeedboat, eyebrow: "Sea · Vehicle", title: "Skim across the blue.",           caption: "Speedboats and ferries between the islands you love." },
+            { src: slideHealth,    eyebrow: "Life · Health", title: "A calm room for your wellbeing.", caption: "Log check-ins and reach vetted medical pros in a tap." },
+            { src: slideWorkplace, eyebrow: "Life · Work",   title: "Your workspace, private.",         caption: "Memos and news shared only with authorised members of your institution." },
+          ]}
+        />
+      </section>
+
       {/* METRICS */}
       <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
         {missionMetrics.map((m) => (
@@ -141,6 +157,9 @@ function Cockpit() {
           </div>
         ))}
       </section>
+
+      <ExploreGallery />
+
 
       {/* FEATURE GRID — mirrors the mockup */}
       <section className="mt-10">
