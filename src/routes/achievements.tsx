@@ -11,7 +11,10 @@ export const Route = createFileRoute("/achievements")({
       { title: "Achievements — H.E.R.I" },
       { name: "description", content: "Real progress tracking. Every action in the H.E.R.I cockpit becomes a milestone." },
     ],
-    links: [{ rel: "canonical", href: "/achievements" }],
+    links: [
+      { rel: "canonical", href: "/achievements" },
+      { rel: "preload", as: "image", href: bgAchievements, fetchpriority: "high" },
+    ],
   }),
 });
 
