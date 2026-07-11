@@ -181,3 +181,12 @@
   50% { opacity: 0.6; }
   100% { transform: translateY(100%); opacity: 0; }
 }
+@keyframes kenburns {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.14); }
+}
+@keyframes backdrop-fade {
+  0%, 100% { opacity: 0; }
+  10%, 40% { opacity: 0.28; }
+}
+

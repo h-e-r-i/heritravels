@@ -8,8 +8,18 @@ import bgWeather from "../assets/bg-weather.jpg";
 import bgAi from "../assets/bg-ai.jpg";
 import bgBooking from "../assets/bg-booking.jpg";
 import bgAchievements from "../assets/bg-achievements.jpg";
+import slideAirport from "../assets/slide-airport.jpg";
+import slideRailway from "../assets/slide-railway.jpg";
+import slidePort from "../assets/slide-port.jpg";
+import slideAirplane from "../assets/slide-airplane.jpg";
+import slideSpeedboat from "../assets/slide-speedboat.jpg";
+import slideHealth from "../assets/slide-health.jpg";
+import slideWorkplace from "../assets/slide-workplace.jpg";
 import { trackAction } from "@/lib/achievements";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { ExploreGallery } from "@/components/ExploreGallery";
+
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
@@ -37,12 +47,13 @@ const features = [
   { to: "/navigator", tag: "Weather",             body: "Real-time forecasts",     icon: "⛅", bg: bgWeather },
   { to: "/navigator", tag: "Booking",             body: "Flights, hotels, transport", icon: "🧳", bg: bgBooking },
   { to: "/agent",     tag: "AI Assistant",        body: "Ask anything, get help",  icon: "🤖", bg: bgAi },
-  { to: "/agent",     tag: "Health Monitor",      body: "Track your body condition", icon: "❤️", bg: bgWeather },
-  { to: "/agent",     tag: "Communication",       body: "Stay connected anytime",  icon: "📡", bg: bgAi },
+  { to: "/health",    tag: "Health",              body: "Log vitals · reach doctors", icon: "❤️", bg: slideHealth },
+  { to: "/workplace", tag: "Workplace",           body: "Private memos for your team", icon: "🏢", bg: slideWorkplace },
   { to: "/achievements", tag: "Culture & Tourism", body: "Explore places, languages & more", icon: "🏛️", bg: bgAchievements },
   { to: "/achievements", tag: "Achievements",     body: "Earn badges, unlock rewards", icon: "🏆", bg: bgAchievements },
   { to: "/agent",     tag: "Occupation Hub",      body: "Tools & support for your work", icon: "💼", bg: bgBooking },
 ];
+
 
 const notifications = [
   { kind: "Weather Alert",       time: "08:30 AM", body: "Heavy rain expected in Nairobi tomorrow. Plan accordingly.", dot: "bg-signal" },
@@ -120,6 +131,22 @@ function Cockpit() {
         </div>
       </section>
 
+      {/* SLIDESHOW — everywhere H.E.R.I moves */}
+      <section className="mt-8">
+        <HeroSlideshow
+          className="h-[420px] md:h-[520px]"
+          slides={[
+            { src: slideAirport,   eyebrow: "Air · Hub",     title: "Land at every terminal.",         caption: "Track gates, tarmacs and tower comms across international airports." },
+            { src: slideRailway,   eyebrow: "Rail · Hub",    title: "Ride the fast lines.",            caption: "High-speed rail platforms and intercity schedules, in real time." },
+            { src: slidePort,      eyebrow: "Sea · Hub",     title: "Depart from the harbour.",         caption: "Cargo ports, cruise terminals and ferry timetables at a glance." },
+            { src: slideAirplane,  eyebrow: "Air · Vehicle", title: "Chase the horizon.",              caption: "Live flight boards, delays and gate changes as they happen." },
+            { src: slideSpeedboat, eyebrow: "Sea · Vehicle", title: "Skim across the blue.",           caption: "Speedboats and ferries between the islands you love." },
+            { src: slideHealth,    eyebrow: "Life · Health", title: "A calm room for your wellbeing.", caption: "Log check-ins and reach vetted medical pros in a tap." },
+            { src: slideWorkplace, eyebrow: "Life · Work",   title: "Your workspace, private.",         caption: "Memos and news shared only with authorised members of your institution." },
+          ]}
+        />
+      </section>
+
       {/* METRICS */}
       <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
         {missionMetrics.map((m) => (
@@ -130,6 +157,9 @@ function Cockpit() {
           </div>
         ))}
       </section>
+
+      <ExploreGallery />
+
 
       {/* FEATURE GRID — mirrors the mockup */}
       <section className="mt-10">
