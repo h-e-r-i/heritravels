@@ -103,8 +103,26 @@ function Navigator() {
         </div>
       </div>
 
+      {/* TRANSPORT SLIDESHOW */}
+      <section className="mt-8">
+        <HeroSlideshow
+          className="h-[320px] md:h-[400px]"
+          slides={[
+            { src: slideAirport,   eyebrow: "Aviation",  title: "Every gate. Every terminal.",     caption: "Real-time flight boards across international hubs." },
+            { src: slideAirplane,  eyebrow: "In flight", title: "Follow the flight path.",         caption: "Track altitude, ETA and route from wheels up to touchdown." },
+            { src: slideRailway,   eyebrow: "Stations",  title: "Platforms in motion.",            caption: "SGR, metro and intercity — arrivals with a heartbeat." },
+            { src: slideTrain,     eyebrow: "Rail",      title: "The country by track.",           caption: "Long-haul rail routes with live seat availability." },
+            { src: slideRoad,      eyebrow: "Road",      title: "Cars, buses, shuttles.",          caption: "City loops, rideshares and long-distance coaches." },
+            { src: slidePort,      eyebrow: "Ports",     title: "Where the water meets the map.",  caption: "Cargo docks, ferry piers and cruise terminals." },
+            { src: slideShip,      eyebrow: "Cruise",    title: "Cross the sea in style.",         caption: "Ocean liners with the routes you'll actually book." },
+            { src: slideSpeedboat, eyebrow: "Speedboat", title: "Island-hop at 60 knots.",         caption: "Fast water taxis and private charters." },
+          ]}
+        />
+      </section>
+
       {/* LIVE MAP */}
       <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_1.6fr]">
+
         <div className="glass-panel rounded-2xl p-5 relative overflow-hidden">
           <img src={bgNavigation} alt="" aria-hidden="true" loading="lazy" width={1600} height={900} className="absolute inset-0 h-full w-full object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 to-background/90" />
