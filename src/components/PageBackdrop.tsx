@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import bgFlight from "../assets/bg-flight.jpg";
 import bgNavigation from "../assets/bg-navigation.jpg";
 import bgWeather from "../assets/bg-weather.jpg";
@@ -18,27 +19,60 @@ const accentMap: Record<Accent, string> = {
   booking: bgBooking,
 };
 
+// Module-level cache so we only warm the browser cache once per session.
+let warmed = false;
+function warmBackgrounds() {
+  if (warmed || typeof window === "undefined") return;
+  warmed = true;
+  const run = () => {
+    for (const src of tiles) {
+      const img = new Image();
+      img.decoding = "async";
+      // low priority — never contends with the LCP image
+      (img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = "low";
+      img.src = src;
+    }
+  };
+  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
+    .requestIdleCallback;
+  if (typeof ric === "function") ric(run);
+  else setTimeout(run, 400);
+}
+
 /**
  * Fixed ambient background: a hero accent image + tiled service collage,
  * shared across Cockpit / Achievements / Agent for a consistent H.E.R.I feel.
  */
 export function PageBackdrop({ accent = "flight" }: { accent?: Accent }) {
   const hero = accentMap[accent];
+
+  useEffect(() => {
+    warmBackgrounds();
+  }, []);
+
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Accent hero image */}
+      {/* Accent hero image — eager, high priority: it's the LCP-ish backdrop */}
       <img
         src={hero}
         alt=""
+        loading="eager"
+        decoding="async"
+        // @ts-expect-error - fetchpriority is a valid HTML attribute
+        fetchpriority="high"
         className="absolute inset-0 h-full w-full object-cover opacity-25"
       />
-      {/* Service collage strip */}
+      {/* Service collage strip — lazy, low priority: below the fold */}
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-6 opacity-[0.12]">
         {tiles.map((src, i) => (
           <img
             key={i}
             src={src}
             alt=""
+            loading="lazy"
+            decoding="async"
+            // @ts-expect-error - fetchpriority is a valid HTML attribute
+            fetchpriority="low"
             className="h-40 w-full object-cover md:h-56"
           />
         ))}

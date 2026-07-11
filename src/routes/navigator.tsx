@@ -12,7 +12,10 @@ export const Route = createFileRoute("/navigator")({
       { title: "Navigator — H.E.R.I" },
       { name: "description", content: "Weather, flights and transport routes on one radar." },
     ],
-    links: [{ rel: "canonical", href: "/navigator" }],
+    links: [
+      { rel: "canonical", href: "/navigator" },
+      { rel: "preload", as: "image", href: bgNavigation, fetchpriority: "high" },
+    ],
   }),
 });
 
