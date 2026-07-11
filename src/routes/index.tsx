@@ -47,12 +47,13 @@ const features = [
   { to: "/navigator", tag: "Weather",             body: "Real-time forecasts",     icon: "⛅", bg: bgWeather },
   { to: "/navigator", tag: "Booking",             body: "Flights, hotels, transport", icon: "🧳", bg: bgBooking },
   { to: "/agent",     tag: "AI Assistant",        body: "Ask anything, get help",  icon: "🤖", bg: bgAi },
-  { to: "/agent",     tag: "Health Monitor",      body: "Track your body condition", icon: "❤️", bg: bgWeather },
-  { to: "/agent",     tag: "Communication",       body: "Stay connected anytime",  icon: "📡", bg: bgAi },
+  { to: "/health",    tag: "Health",              body: "Log vitals · reach doctors", icon: "❤️", bg: slideHealth },
+  { to: "/workplace", tag: "Workplace",           body: "Private memos for your team", icon: "🏢", bg: slideWorkplace },
   { to: "/achievements", tag: "Culture & Tourism", body: "Explore places, languages & more", icon: "🏛️", bg: bgAchievements },
   { to: "/achievements", tag: "Achievements",     body: "Earn badges, unlock rewards", icon: "🏆", bg: bgAchievements },
   { to: "/agent",     tag: "Occupation Hub",      body: "Tools & support for your work", icon: "💼", bg: bgBooking },
 ];
+
 
 const notifications = [
   { kind: "Weather Alert",       time: "08:30 AM", body: "Heavy rain expected in Nairobi tomorrow. Plan accordingly.", dot: "bg-signal" },
