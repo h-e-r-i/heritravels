@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import bgNavigation from "../assets/bg-navigation.jpg";
+import slideAirport from "../assets/slide-airport.jpg";
+import slideRailway from "../assets/slide-railway.jpg";
+import slidePort from "../assets/slide-port.jpg";
+import slideAirplane from "../assets/slide-airplane.jpg";
+import slideTrain from "../assets/slide-train.jpg";
+import slideRoad from "../assets/slide-road.jpg";
+import slideShip from "../assets/slide-ship.jpg";
+import slideSpeedboat from "../assets/slide-speedboat.jpg";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { trackAction } from "@/lib/achievements";
+
 
 
 
