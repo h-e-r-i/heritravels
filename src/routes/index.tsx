@@ -13,6 +13,16 @@ import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/")({
   component: Cockpit,
+  head: () => ({
+    meta: [
+      { title: "H.E.R.I — Your copilot for everywhere" },
+      { name: "description", content: "H.E.R.I fuses weather, flights, road transport, culture and body vitals into one calm cockpit." },
+    ],
+    links: [
+      { rel: "canonical", href: "/" },
+      { rel: "preload", as: "image", href: bgFlight, fetchpriority: "high" },
+    ],
+  }),
 });
 
 const missionMetrics = [
