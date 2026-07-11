@@ -8,6 +8,8 @@ import heriLogo from "../assets/heri-logo.png.asset.json";
 import { trackAction } from "@/lib/achievements";
 import { PageBackdrop } from "@/components/PageBackdrop";
 
+import bgAi from "../assets/bg-ai.jpg";
+
 export const Route = createFileRoute("/agent")({
   component: AgentPage,
   head: () => ({
@@ -15,7 +17,10 @@ export const Route = createFileRoute("/agent")({
       { title: "H.E.R.I Agent — Wings of Excellence" },
       { name: "description", content: "Chat with H.E.R.I: your AI copilot for weather, flights, culture and health." },
     ],
-    links: [{ rel: "canonical", href: "/agent" }],
+    links: [
+      { rel: "canonical", href: "/agent" },
+      { rel: "preload", as: "image", href: bgAi, fetchpriority: "high" },
+    ],
   }),
 });
 
