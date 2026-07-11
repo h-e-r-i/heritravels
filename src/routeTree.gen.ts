@@ -9,15 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkplaceRouteImport } from './routes/workplace'
 import { Route as NavigatorRouteImport } from './routes/navigator'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as AgentRouteImport } from './routes/agent'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const WorkplaceRoute = WorkplaceRouteImport.update({
+  id: '/workplace',
+  path: '/workplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NavigatorRoute = NavigatorRouteImport.update({
   id: '/navigator',
   path: '/navigator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentRoute = AgentRouteImport.update({
@@ -45,14 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
@@ -60,32 +76,72 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/achievements' | '/agent' | '/navigator' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/achievements'
+    | '/agent'
+    | '/health'
+    | '/navigator'
+    | '/workplace'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/achievements' | '/agent' | '/navigator' | '/api/chat'
-  id: '__root__' | '/' | '/achievements' | '/agent' | '/navigator' | '/api/chat'
+  to:
+    | '/'
+    | '/achievements'
+    | '/agent'
+    | '/health'
+    | '/navigator'
+    | '/workplace'
+    | '/api/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/achievements'
+    | '/agent'
+    | '/health'
+    | '/navigator'
+    | '/workplace'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AchievementsRoute: typeof AchievementsRoute
   AgentRoute: typeof AgentRoute
+  HealthRoute: typeof HealthRoute
   NavigatorRoute: typeof NavigatorRoute
+  WorkplaceRoute: typeof WorkplaceRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workplace': {
+      id: '/workplace'
+      path: '/workplace'
+      fullPath: '/workplace'
+      preLoaderRoute: typeof WorkplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/navigator': {
       id: '/navigator'
       path: '/navigator'
       fullPath: '/navigator'
       preLoaderRoute: typeof NavigatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent': {
@@ -123,7 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AchievementsRoute: AchievementsRoute,
   AgentRoute: AgentRoute,
+  HealthRoute: HealthRoute,
   NavigatorRoute: NavigatorRoute,
+  WorkplaceRoute: WorkplaceRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport

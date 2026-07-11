@@ -8,8 +8,18 @@ import bgWeather from "../assets/bg-weather.jpg";
 import bgAi from "../assets/bg-ai.jpg";
 import bgBooking from "../assets/bg-booking.jpg";
 import bgAchievements from "../assets/bg-achievements.jpg";
+import slideAirport from "../assets/slide-airport.jpg";
+import slideRailway from "../assets/slide-railway.jpg";
+import slidePort from "../assets/slide-port.jpg";
+import slideAirplane from "../assets/slide-airplane.jpg";
+import slideSpeedboat from "../assets/slide-speedboat.jpg";
+import slideHealth from "../assets/slide-health.jpg";
+import slideWorkplace from "../assets/slide-workplace.jpg";
 import { trackAction } from "@/lib/achievements";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { ExploreGallery } from "@/components/ExploreGallery";
+
 
 export const Route = createFileRoute("/")({
   component: Cockpit,

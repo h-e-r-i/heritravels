@@ -122,9 +122,12 @@ function RootShell({ children }: { children: ReactNode }) {
 const navItems = [
   { to: "/", label: "Cockpit" },
   { to: "/navigator", label: "Navigator" },
+  { to: "/health", label: "Health" },
+  { to: "/workplace", label: "Workplace" },
   { to: "/achievements", label: "Achievements" },
   { to: "/agent", label: "H.E.R.I Agent" },
 ] as const;
+
 
 function TopNav() {
   return (
