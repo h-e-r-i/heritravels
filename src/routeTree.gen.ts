@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkplaceRouteImport } from './routes/workplace'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NavigatorRouteImport } from './routes/navigator'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as DestinationsRouteImport } from './routes/destinations'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AgentRouteImport } from './routes/agent'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as IndexRouteImport } from './routes/index'
@@ -22,6 +25,11 @@ const WorkplaceRoute = WorkplaceRouteImport.update({
   path: '/workplace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NavigatorRoute = NavigatorRouteImport.update({
   id: '/navigator',
   path: '/navigator',
@@ -30,6 +38,16 @@ const NavigatorRoute = NavigatorRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestinationsRoute = DestinationsRouteImport.update({
+  id: '/destinations',
+  path: '/destinations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentRoute = AgentRouteImport.update({
@@ -57,8 +75,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/auth': typeof AuthRoute
+  '/destinations': typeof DestinationsRoute
   '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/profile': typeof ProfileRoute
   '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -66,8 +87,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/auth': typeof AuthRoute
+  '/destinations': typeof DestinationsRoute
   '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/profile': typeof ProfileRoute
   '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -76,8 +100,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/agent': typeof AgentRoute
+  '/auth': typeof AuthRoute
+  '/destinations': typeof DestinationsRoute
   '/health': typeof HealthRoute
   '/navigator': typeof NavigatorRoute
+  '/profile': typeof ProfileRoute
   '/workplace': typeof WorkplaceRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -87,8 +114,11 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/agent'
+    | '/auth'
+    | '/destinations'
     | '/health'
     | '/navigator'
+    | '/profile'
     | '/workplace'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
@@ -96,8 +126,11 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/agent'
+    | '/auth'
+    | '/destinations'
     | '/health'
     | '/navigator'
+    | '/profile'
     | '/workplace'
     | '/api/chat'
   id:
@@ -105,8 +138,11 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/agent'
+    | '/auth'
+    | '/destinations'
     | '/health'
     | '/navigator'
+    | '/profile'
     | '/workplace'
     | '/api/chat'
   fileRoutesById: FileRoutesById
@@ -115,8 +151,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AchievementsRoute: typeof AchievementsRoute
   AgentRoute: typeof AgentRoute
+  AuthRoute: typeof AuthRoute
+  DestinationsRoute: typeof DestinationsRoute
   HealthRoute: typeof HealthRoute
   NavigatorRoute: typeof NavigatorRoute
+  ProfileRoute: typeof ProfileRoute
   WorkplaceRoute: typeof WorkplaceRoute
   ApiChatRoute: typeof ApiChatRoute
 }
@@ -128,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/workplace'
       fullPath: '/workplace'
       preLoaderRoute: typeof WorkplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/navigator': {
@@ -142,6 +188,20 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destinations': {
+      id: '/destinations'
+      path: '/destinations'
+      fullPath: '/destinations'
+      preLoaderRoute: typeof DestinationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent': {
@@ -179,8 +239,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AchievementsRoute: AchievementsRoute,
   AgentRoute: AgentRoute,
+  AuthRoute: AuthRoute,
+  DestinationsRoute: DestinationsRoute,
   HealthRoute: HealthRoute,
   NavigatorRoute: NavigatorRoute,
+  ProfileRoute: ProfileRoute,
   WorkplaceRoute: WorkplaceRoute,
   ApiChatRoute: ApiChatRoute,
 }
