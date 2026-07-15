@@ -34,7 +34,7 @@ function DestinationsPage() {
     });
   }, [region, query]);
 
-  const open = (d: Destination) => { setActive(d); trackAction("destination_opened", { id: d.id }); };
+  const open = (d: Destination) => { setActive(d); trackAction("feature_opened", { feature: `destination:${d.id}` }); };
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">

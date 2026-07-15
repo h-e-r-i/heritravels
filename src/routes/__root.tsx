@@ -21,6 +21,7 @@ import heriLogo from "../assets/heri-logo.png.asset.json";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AchievementToaster } from "../components/AchievementToaster";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 
 function NotFoundComponent() {
   return (
@@ -122,6 +123,7 @@ function RootShell({ children }: { children: ReactNode }) {
 const navItems = [
   { to: "/", label: "Cockpit" },
   { to: "/navigator", label: "Navigator" },
+  { to: "/destinations", label: "Destinations" },
   { to: "/health", label: "Health" },
   { to: "/workplace", label: "Workplace" },
   { to: "/achievements", label: "Achievements" },
@@ -163,13 +165,16 @@ function TopNav() {
           ))}
         </nav>
 
-        <Link
-          to="/agent"
-          className="hidden md:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
-          Ask H.E.R.I
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/agent"
+            className="hidden md:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
+            Ask H.E.R.I
+          </Link>
+          <ProfileAvatar />
+        </div>
       </div>
 
       <nav className="md:hidden flex overflow-x-auto gap-1 px-4 pb-3 -mt-1">
