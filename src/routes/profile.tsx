@@ -7,6 +7,7 @@ type Profile = {
   id: string;
   email: string | null;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   phone: string | null;
   address: string | null;
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 const EMPTY: Omit<Profile, "id" | "email"> = {
-  full_name: "", avatar_url: "", phone: "", address: "", emergency_contact: "",
+  full_name: "", username: "", avatar_url: "", phone: "", address: "", emergency_contact: "",
   payment_brand: "", payment_last4: "", payment_holder: "",
   language: "en", units: "metric", notifications_enabled: true,
 };
