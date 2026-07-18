@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      friend_requests: {
+        Row: {
+          created_at: string
+          from_user: string
+          id: string
+          status: string
+          to_user: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_user: string
+          id?: string
+          status?: string
+          to_user: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_user?: string
+          id?: string
+          status?: string
+          to_user?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -31,6 +103,7 @@ export type Database = {
           phone: string | null
           units: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           address?: string | null
@@ -48,6 +121,7 @@ export type Database = {
           phone?: string | null
           units?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           address?: string | null
@@ -65,6 +139,7 @@ export type Database = {
           phone?: string | null
           units?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
