@@ -128,9 +128,12 @@ function ProfilePage() {
       <div className="mt-6 glass-panel rounded-2xl p-6 grid gap-4 md:grid-cols-2">
         {tab === "account" && (<>
           <Field label="Full name"><input className={inputCls} value={form.full_name ?? ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+          <Field label="Username (for friends to find you)">
+            <input className={inputCls} placeholder="e.g. amina_k" value={form.username ?? ""}
+              onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
+          </Field>
           <Field label="Email"><input className={inputCls} value={form.email ?? ""} disabled /></Field>
           <Field label="Avatar URL"><input className={inputCls} placeholder="https://…" value={form.avatar_url ?? ""} onChange={(e) => setForm({ ...form, avatar_url: e.target.value })} /></Field>
-          <Field label="User ID"><input className={inputCls} value={user.id} disabled /></Field>
         </>)}
 
         {tab === "personal" && (<>
