@@ -1,15 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { resetProgress, trackAction, useAchievements, type Milestone } from "@/lib/achievements";
+import { destinations } from "@/lib/destinations";
+import { LOCATION_EVENT, LOCATION_VISIT_EVENT, readLocation, TWO_DAYS_SECONDS, formatDuration, type LocationState } from "@/lib/location-tracker";
 import bgAchievements from "../assets/bg-achievements.jpg";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { FriendsPanel } from "@/components/FriendsPanel";
 
 export const Route = createFileRoute("/achievements")({
   component: Achievements,
   head: () => ({
     meta: [
       { title: "Achievements — H.E.R.I" },
-      { name: "description", content: "Real progress tracking. Every action in the H.E.R.I cockpit becomes a milestone." },
+      { name: "description", content: "Milestones, journey wings and travel companions — every action in H.E.R.I becomes progress here." },
     ],
     links: [
       { rel: "canonical", href: "/achievements" },
@@ -37,16 +40,28 @@ const actionLabels: Record<string, string> = {
 function Achievements() {
   useEffect(() => { trackAction("achievements_visited"); }, []);
   const { state, totalPoints, unlockedCount, milestones } = useAchievements();
+  const [loc, setLoc] = useState<LocationState>(() => readLocation());
+  const [tab, setTab] = useState<"milestones" | "journey" | "friends">("milestones");
 
-  const pct = Math.round((unlockedCount / milestones.length) * 100);
-  const level = 1 + Math.floor(totalPoints / 300);
+  useEffect(() => {
+    const sync = () => setLoc(readLocation());
+    window.addEventListener(LOCATION_EVENT, sync);
+    window.addEventListener(LOCATION_VISIT_EVENT, sync);
+    return () => {
+      window.removeEventListener(LOCATION_EVENT, sync);
+      window.removeEventListener(LOCATION_VISIT_EVENT, sync);
+    };
+  }, []);
+
+  const visitedCount = Object.keys(loc.visited).length;
+  const inProgress = Object.entries(loc.seconds).filter(([id, s]) => !loc.visited[id] && s > 0).length;
+  const journeyPoints = visitedCount * 250;
+
+  const pct = Math.round(((unlockedCount + visitedCount) / (milestones.length + destinations.length)) * 100);
+  const grandPoints = totalPoints + journeyPoints;
+  const level = 1 + Math.floor(grandPoints / 300);
   const nextLevelPts = level * 300;
-  const levelPct = Math.min(100, Math.round((totalPoints / nextLevelPts) * 100));
-
-  const recentUnlocks = milestones
-    .filter((m) => state.unlocked[m.id])
-    .sort((a, b) => state.unlocked[b.id] - state.unlocked[a.id])
-    .slice(0, 5);
+  const levelPct = Math.min(100, Math.round((grandPoints / nextLevelPts) * 100));
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
@@ -57,7 +72,7 @@ function Achievements() {
           <h1 className="font-display text-3xl md:text-4xl font-semibold">
             Wings of <span className="text-gradient-electric">Excellence</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Every action across H.E.R.I turns into real progress here.</p>
+          <p className="text-sm text-muted-foreground mt-1">Milestones, journey wings and companions — every action becomes progress here.</p>
         </div>
         <button
           onClick={() => { if (confirm("Reset all achievement progress?")) resetProgress(); }}
@@ -78,77 +93,110 @@ function Achievements() {
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
               <div className="h-full rounded-full bg-gradient-to-r from-primary to-electric transition-all" style={{ width: `${levelPct}%` }} />
             </div>
-            <div className="text-[10px] text-muted-foreground mt-1">{totalPoints} / {nextLevelPts} pts</div>
+            <div className="text-[10px] text-muted-foreground mt-1">{grandPoints} / {nextLevelPts} pts</div>
           </div>
-          <Stat label="Points" value={totalPoints.toLocaleString()} tone="text-electric" />
-          <Stat label="Badges" value={`${unlockedCount} / ${milestones.length}`} tone="text-primary-glow" />
+          <Stat label="Points" value={grandPoints.toLocaleString()} tone="text-electric" />
+          <Stat label="Badges" value={`${unlockedCount + visitedCount} / ${milestones.length + destinations.length}`} tone="text-primary-glow" />
           <Stat label="Completion" value={`${pct}%`} tone="text-signal" />
         </div>
       </section>
 
-      {/* RECENT UNLOCKS */}
-      {recentUnlocks.length > 0 && (
-        <section className="mt-8">
-          <h2 className="font-display text-lg font-semibold mb-3">Recent unlocks</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {recentUnlocks.map((m) => (
-              <div key={m.id} className={`glass-panel rounded-2xl p-4 border ${rarityStyles[m.rarity]}`}>
-                <div className="text-3xl">{m.icon}</div>
-                <div className="mt-2 font-display text-sm font-semibold">{m.name}</div>
-                <div className="text-[10px] text-muted-foreground">{new Date(state.unlocked[m.id]).toLocaleString()}</div>
-              </div>
-            ))}
+      {/* TABS */}
+      <div className="mt-8 flex gap-1 rounded-full border border-border/60 bg-surface/60 p-1 text-xs w-fit">
+        {([
+          ["milestones", `Milestones (${unlockedCount}/${milestones.length})`],
+          ["journey", `Journey Wings (${visitedCount}/${destinations.length})`],
+          ["friends", "Companions"],
+        ] as const).map(([k, l]) => (
+          <button key={k} onClick={() => setTab(k)}
+            className={`px-4 py-1.5 rounded-full transition ${tab === k ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {tab === "milestones" && (
+        <section className="mt-6">
+          <p className="text-xs text-muted-foreground mb-4">
+            Do things across the app — chat with H.E.R.I, plan routes, explore the dashboard — to fill these up.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {milestones.map((m) => {
+              const current = Math.min(state.counters[m.action] ?? 0, m.target);
+              const p = Math.round((current / m.target) * 100);
+              const done = !!state.unlocked[m.id];
+              return (
+                <div key={m.id} className={`relative rounded-2xl border p-5 transition ${done ? `glass-panel ${rarityStyles[m.rarity]}` : "border-border/60 bg-surface/40"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="text-4xl" style={{ filter: done ? "none" : "grayscale(1) opacity(0.55)" }}>{m.icon}</div>
+                    <span className={`text-[10px] uppercase tracking-[0.2em] rounded-full border px-2 py-0.5 ${rarityStyles[m.rarity]}`}>{m.rarity}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="font-display text-base font-semibold">{m.name}</div>
+                    <div className="text-xs text-signal">+{m.points}</div>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{m.desc}</p>
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <span>{current} / {m.target} {actionLabels[m.action] ?? m.action}</span>
+                      <span>{done ? "✓ Unlocked" : `${p}%`}</span>
+                    </div>
+                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+                      <div className={`h-full rounded-full transition-all ${done ? "bg-gradient-to-r from-signal to-electric" : "bg-gradient-to-r from-primary to-electric"}`} style={{ width: `${p}%` }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
 
-      {/* MILESTONES */}
-      <section className="mt-10">
-        <h2 className="font-display text-lg font-semibold mb-3">Milestones</h2>
-        <p className="text-xs text-muted-foreground mb-4">
-          Do things across the app — chat with H.E.R.I, plan routes, explore the dashboard — to fill these up.
-        </p>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {milestones.map((m) => {
-            const current = Math.min(state.counters[m.action] ?? 0, m.target);
-            const p = Math.round((current / m.target) * 100);
-            const done = !!state.unlocked[m.id];
-            return (
-              <div
-                key={m.id}
-                className={`relative rounded-2xl border p-5 transition ${
-                  done ? `glass-panel ${rarityStyles[m.rarity]}` : "border-border/60 bg-surface/40"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="text-4xl" style={{ filter: done ? "none" : "grayscale(1) opacity(0.55)" }}>{m.icon}</div>
-                  <span className={`text-[10px] uppercase tracking-[0.2em] rounded-full border px-2 py-0.5 ${rarityStyles[m.rarity]}`}>
-                    {m.rarity}
-                  </span>
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="font-display text-base font-semibold">{m.name}</div>
-                  <div className="text-xs text-signal">+{m.points}</div>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{m.desc}</p>
+      {tab === "journey" && (
+        <section className="mt-6">
+          <div className="rounded-2xl border border-electric/40 bg-electric/5 p-4 text-sm">
+            {loc.enabled
+              ? <>H.E.R.I is tracking your position. Spend <b>48h</b> within 25 km of any of the 100 destinations to earn its Journey Wing (+250 pts).</>
+              : <>Location tracking is off. Enable it from the <a href="/destinations" className="text-electric underline">Destinations</a> page to earn Journey Wings by physically visiting places.</>}
+            <span className="ml-2 text-muted-foreground">· {visitedCount} unlocked · {inProgress} in progress</span>
+          </div>
 
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
-                    <span>{current} / {m.target} {actionLabels[m.action] ?? m.action}</span>
-                    <span>{done ? "✓ Unlocked" : `${p}%`}</span>
+          <div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {destinations.map((d) => {
+              const secs = loc.seconds[d.id] ?? 0;
+              const visited = !!loc.visited[d.id];
+              const pctD = Math.min(100, Math.round((secs / TWO_DAYS_SECONDS) * 100));
+              return (
+                <div key={d.id} className={`rounded-2xl border p-3 ${visited ? "border-signal/60 bg-signal/5" : secs > 0 ? "border-electric/50 bg-electric/5" : "border-border/50 bg-surface/40"}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{d.region}</div>
+                      <div className="font-display text-sm font-semibold leading-tight">{d.name}</div>
+                      <div className="text-[10px] text-muted-foreground">{d.country}</div>
+                    </div>
+                    <div className="text-xl">{visited ? "🏆" : secs > 0 ? "🛬" : "🌐"}</div>
                   </div>
-                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
-                    <div
-                      className={`h-full rounded-full transition-all ${done ? "bg-gradient-to-r from-signal to-electric" : "bg-gradient-to-r from-primary to-electric"}`}
-                      style={{ width: `${p}%` }}
-                    />
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                      <span>{formatDuration(secs)} / 48h</span>
+                      <span>{visited ? "Unlocked" : `${pctD}%`}</span>
+                    </div>
+                    <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-background/60">
+                      <div className={`h-full ${visited ? "bg-signal" : "bg-gradient-to-r from-primary to-electric"}`} style={{ width: `${visited ? 100 : pctD}%` }} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {tab === "friends" && (
+        <section className="mt-6">
+          <FriendsPanel />
+        </section>
+      )}
     </div>
   );
 }

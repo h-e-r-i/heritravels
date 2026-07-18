@@ -7,6 +7,7 @@ type Profile = {
   id: string;
   email: string | null;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   phone: string | null;
   address: string | null;
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 const EMPTY: Omit<Profile, "id" | "email"> = {
-  full_name: "", avatar_url: "", phone: "", address: "", emergency_contact: "",
+  full_name: "", username: "", avatar_url: "", phone: "", address: "", emergency_contact: "",
   payment_brand: "", payment_last4: "", payment_holder: "",
   language: "en", units: "metric", notifications_enabled: true,
 };
@@ -63,10 +64,12 @@ function ProfilePage() {
   async function save() {
     if (!user || !form) return;
     setSaving(true); setMsg(null); setErr(null);
+    const uname = form.username?.trim().toLowerCase().replace(/[^a-z0-9_]/g, "") || null;
     const { error } = await supabase.from("profiles").upsert({
       id: user.id,
       email: form.email,
       full_name: form.full_name,
+      username: uname,
       avatar_url: form.avatar_url,
       phone: form.phone,
       address: form.address,
@@ -80,7 +83,8 @@ function ProfilePage() {
     });
     setSaving(false);
     if (error) setErr(error.message);
-    else setMsg("Saved.");
+    else { setMsg("Saved."); if (uname) setForm({ ...form, username: uname }); }
+    try { localStorage.setItem("heri.notifications.enabled", String(!!form.notifications_enabled)); } catch { /* ignore */ }
   }
 
   async function signOut() {
@@ -124,9 +128,12 @@ function ProfilePage() {
       <div className="mt-6 glass-panel rounded-2xl p-6 grid gap-4 md:grid-cols-2">
         {tab === "account" && (<>
           <Field label="Full name"><input className={inputCls} value={form.full_name ?? ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+          <Field label="Username (for friends to find you)">
+            <input className={inputCls} placeholder="e.g. amina_k" value={form.username ?? ""}
+              onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
+          </Field>
           <Field label="Email"><input className={inputCls} value={form.email ?? ""} disabled /></Field>
           <Field label="Avatar URL"><input className={inputCls} placeholder="https://…" value={form.avatar_url ?? ""} onChange={(e) => setForm({ ...form, avatar_url: e.target.value })} /></Field>
-          <Field label="User ID"><input className={inputCls} value={user.id} disabled /></Field>
         </>)}
 
         {tab === "personal" && (<>
