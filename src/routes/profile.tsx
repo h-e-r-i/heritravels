@@ -64,10 +64,12 @@ function ProfilePage() {
   async function save() {
     if (!user || !form) return;
     setSaving(true); setMsg(null); setErr(null);
+    const uname = form.username?.trim().toLowerCase().replace(/[^a-z0-9_]/g, "") || null;
     const { error } = await supabase.from("profiles").upsert({
       id: user.id,
       email: form.email,
       full_name: form.full_name,
+      username: uname,
       avatar_url: form.avatar_url,
       phone: form.phone,
       address: form.address,
@@ -81,7 +83,8 @@ function ProfilePage() {
     });
     setSaving(false);
     if (error) setErr(error.message);
-    else setMsg("Saved.");
+    else { setMsg("Saved."); if (uname) setForm({ ...form, username: uname }); }
+    try { localStorage.setItem("heri.notifications.enabled", String(!!form.notifications_enabled)); } catch { /* ignore */ }
   }
 
   async function signOut() {
