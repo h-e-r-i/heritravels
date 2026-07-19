@@ -11,6 +11,24 @@ const Input = z.object({
   lng: z.number(),
 });
 
+export type Hotel = {
+  name: string;
+  rating: number;
+  reviews: number;
+  pricePerNight: string;
+  area: string;
+  highlight: string;
+};
+
+export type TransportOption = {
+  mode: "flight" | "train" | "bus" | "ship";
+  operator: string;
+  route: string;
+  schedule: string;
+  duration: string;
+  price: string;
+};
+
 export type DossierResult = {
   weather: string;
   languages: string;
@@ -19,6 +37,8 @@ export type DossierResult = {
   tips: string[];
   safety: string;
   currency: string;
+  hotels: Hotel[];
+  transport: TransportOption[];
 };
 
 export const fetchDestinationDossier = createServerFn({ method: "POST" })
@@ -31,16 +51,23 @@ export const fetchDestinationDossier = createServerFn({ method: "POST" })
     const model = gateway("google/gemini-2.5-flash");
 
     const prompt = `Give a compact traveler dossier for ${data.name}, ${data.country} (lat ${data.lat.toFixed(2)}, lng ${data.lng.toFixed(2)}).
-Return STRICT JSON only, no prose, no code fences. Shape:
+Return STRICT JSON only, no prose, no code fences. Use REAL well-known hotel properties and REAL transport operators that actually serve this city. Shape:
 {
-  "weather": "one sentence about the current typical weather this month with approx temp range",
+  "weather": "one sentence, current typical weather this month with approx temp range",
   "languages": "primary spoken languages, comma separated",
   "bestTimeAdvice": "one short sentence on when to go and why",
-  "feedback": ["3 realistic short quotes traveler feedback style, 1 sentence each"],
+  "feedback": ["3 realistic short traveler quotes, 1 sentence each"],
   "tips": ["4 concise practical traveler tips, 1 sentence each"],
-  "safety": "one sentence with a candid safety note",
-  "currency": "local currency name (code)"
-}`;
+  "safety": "one sentence candid safety note",
+  "currency": "local currency name (code)",
+  "hotels": [
+    {"name":"real hotel name","rating":4.5,"reviews":1240,"pricePerNight":"$180","area":"neighborhood","highlight":"one short reason to stay"}
+  ],
+  "transport": [
+    {"mode":"flight|train|bus|ship","operator":"real operator","route":"Origin → ${data.name}","schedule":"e.g. Daily 08:15","duration":"e.g. 1h 40m","price":"e.g. $95"}
+  ]
+}
+Provide 5 hotels (mix of luxury, mid-range, boutique) and 5-6 transport options covering whichever modes realistically serve this city.`;
 
     try {
       const { text } = await generateText({ model, prompt });
@@ -54,6 +81,8 @@ Return STRICT JSON only, no prose, no code fences. Shape:
         tips: Array.isArray(parsed.tips) ? parsed.tips.slice(0, 6).map(String) : [],
         safety: String(parsed.safety ?? ""),
         currency: String(parsed.currency ?? ""),
+        hotels: Array.isArray(parsed.hotels) ? parsed.hotels.slice(0, 6) : [],
+        transport: Array.isArray(parsed.transport) ? parsed.transport.slice(0, 8) : [],
       };
     } catch (e) {
       console.error("dossier failed", e);
@@ -65,6 +94,8 @@ Return STRICT JSON only, no prose, no code fences. Shape:
         tips: [],
         safety: "",
         currency: "",
+        hotels: [],
+        transport: [],
       };
     }
   });
