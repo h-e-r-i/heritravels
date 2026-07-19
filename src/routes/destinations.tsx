@@ -187,6 +187,8 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
   const [loadingDossier, setLoadingDossier] = useState(true);
   const [tab, setTab] = useState<"overview" | "hotels" | "transport">("overview");
   const [slide, setSlide] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+  const [fs, setFs] = useState(false);
   const getDossier = useServerFn(fetchDestinationDossier);
 
   useEffect(() => {
@@ -202,10 +204,23 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
 
   const slides = wiki?.images ?? [];
   useEffect(() => {
-    if (slides.length < 2) return;
+    if (!autoplay || slides.length < 2) return;
     const id = setInterval(() => setSlide((s) => (s + 1) % slides.length), 3800);
     return () => clearInterval(id);
-  }, [slides.length]);
+  }, [slides.length, autoplay]);
+
+  const prev = () => slides.length && setSlide((s) => (s - 1 + slides.length) % slides.length);
+  const next = () => slides.length && setSlide((s) => (s + 1) % slides.length);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prev();
+      else if (e.key === "ArrowRight") next();
+      else if (e.key === "Escape" && fs) setFs(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [slides.length, fs]);
 
   const gallery = wiki?.images.slice(1, 5) ?? [];
 
@@ -221,12 +236,12 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
           className="absolute right-4 top-4 z-20 h-9 w-9 rounded-full border border-border/60 bg-background/80 backdrop-blur text-lg hover:bg-accent"
         >✕</button>
 
-        <div className="relative h-64 md:h-80 w-full overflow-hidden bg-surface-2">
+        <div className="relative h-64 md:h-80 w-full overflow-hidden bg-surface-2 group/hero">
           {slides.length > 0 ? slides.map((src, i) => (
             <img key={src} src={src} alt={`${d.name} ${i + 1}`}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${i === slide ? "opacity-100" : "opacity-0"}`} />
           )) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
 
           {/* Tabs top-right */}
           <div className="absolute top-4 right-16 z-10 flex gap-1 rounded-full border border-border/60 bg-background/70 backdrop-blur p-1 text-[11px]">
@@ -236,6 +251,38 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
                 {t === "overview" ? "Overview" : t === "hotels" ? "Hotels" : "Transport"}
               </button>
             ))}
+          </div>
+
+          {/* Prev / Next */}
+          {slides.length > 1 && (
+            <>
+              <button onClick={prev} aria-label="Previous image"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full border border-border/60 bg-background/70 backdrop-blur text-lg opacity-0 group-hover/hero:opacity-100 transition hover:bg-accent">‹</button>
+              <button onClick={next} aria-label="Next image"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full border border-border/60 bg-background/70 backdrop-blur text-lg opacity-0 group-hover/hero:opacity-100 transition hover:bg-accent">›</button>
+            </>
+          )}
+
+          {/* Controls: autoplay + fullscreen + counter */}
+          <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+            {slides.length > 1 && (
+              <button onClick={() => setAutoplay((v) => !v)}
+                aria-label={autoplay ? "Pause slideshow" : "Play slideshow"}
+                className="h-8 px-3 rounded-full border border-border/60 bg-background/70 backdrop-blur text-xs hover:bg-accent">
+                {autoplay ? "⏸ Auto" : "▶ Auto"}
+              </button>
+            )}
+            {slides.length > 0 && (
+              <button onClick={() => setFs(true)} aria-label="Fullscreen"
+                className="h-8 px-3 rounded-full border border-border/60 bg-background/70 backdrop-blur text-xs hover:bg-accent">
+                ⛶ Fullscreen
+              </button>
+            )}
+            {slides.length > 1 && (
+              <span className="h-8 px-3 inline-flex items-center rounded-full border border-border/60 bg-background/70 backdrop-blur text-[10px] text-muted-foreground">
+                {slide + 1} / {slides.length}
+              </span>
+            )}
           </div>
 
           {/* Slide dots */}
@@ -248,12 +295,32 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
             </div>
           )}
 
-          <div className="absolute bottom-0 left-0 right-0 p-6">
+          <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">
             <div className="text-[10px] uppercase tracking-[0.3em] text-primary-glow">{d.region} · {d.country}</div>
             <h2 className="font-display text-3xl md:text-4xl font-semibold">{d.name}</h2>
             <p className="text-sm text-muted-foreground mt-1 italic">"{d.tagline}"</p>
           </div>
         </div>
+
+        {fs && slides.length > 0 && (
+          <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setFs(false)}>
+            <img src={slides[slide]} alt={`${d.name} ${slide + 1}`}
+              className="max-h-full max-w-full object-contain" onClick={(e) => e.stopPropagation()} />
+            <button onClick={(e) => { e.stopPropagation(); setFs(false); }} aria-label="Exit fullscreen"
+              className="absolute top-5 right-5 h-10 w-10 rounded-full border border-white/30 bg-black/50 text-white text-lg hover:bg-white/10">✕</button>
+            {slides.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous"
+                  className="absolute left-6 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full border border-white/30 bg-black/50 text-white text-2xl hover:bg-white/10">‹</button>
+                <button onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Next"
+                  className="absolute right-6 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full border border-white/30 bg-black/50 text-white text-2xl hover:bg-white/10">›</button>
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/80 bg-black/50 px-3 py-1 rounded-full">
+                  {slide + 1} / {slides.length} · ← → to navigate · Esc to exit
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {tab === "overview" && (
           <div className="p-6 grid gap-6 md:grid-cols-[1.4fr_1fr]">
