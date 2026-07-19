@@ -185,6 +185,8 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [dossier, setDossier] = useState<DossierResult | null>(null);
   const [loadingDossier, setLoadingDossier] = useState(true);
+  const [tab, setTab] = useState<"overview" | "hotels" | "transport">("overview");
+  const [slide, setSlide] = useState(0);
   const getDossier = useServerFn(fetchDestinationDossier);
 
   useEffect(() => {
@@ -198,7 +200,13 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
     return () => { live = false; };
   }, [d.id]);
 
-  const hero = wiki?.images[0];
+  const slides = wiki?.images ?? [];
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const id = setInterval(() => setSlide((s) => (s + 1) % slides.length), 3800);
+    return () => clearInterval(id);
+  }, [slides.length]);
+
   const gallery = wiki?.images.slice(1, 5) ?? [];
 
   return (
@@ -210,12 +218,36 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 z-10 h-9 w-9 rounded-full border border-border/60 bg-background/80 backdrop-blur text-lg hover:bg-accent"
+          className="absolute right-4 top-4 z-20 h-9 w-9 rounded-full border border-border/60 bg-background/80 backdrop-blur text-lg hover:bg-accent"
         >✕</button>
 
         <div className="relative h-64 md:h-80 w-full overflow-hidden bg-surface-2">
-          {hero && <img src={hero} alt={d.name} className="h-full w-full object-cover" />}
+          {slides.length > 0 ? slides.map((src, i) => (
+            <img key={src} src={src} alt={`${d.name} ${i + 1}`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${i === slide ? "opacity-100" : "opacity-0"}`} />
+          )) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+
+          {/* Tabs top-right */}
+          <div className="absolute top-4 right-16 z-10 flex gap-1 rounded-full border border-border/60 bg-background/70 backdrop-blur p-1 text-[11px]">
+            {(["overview","hotels","transport"] as const).map((t) => (
+              <button key={t} onClick={() => setTab(t)}
+                className={`px-3 py-1.5 rounded-full transition ${tab === t ? "bg-gradient-to-r from-primary to-electric text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                {t === "overview" ? "Overview" : t === "hotels" ? "Hotels" : "Transport"}
+              </button>
+            ))}
+          </div>
+
+          {/* Slide dots */}
+          {slides.length > 1 && (
+            <div className="absolute bottom-24 right-4 z-10 flex gap-1">
+              {slides.map((_, i) => (
+                <button key={i} onClick={() => setSlide(i)} aria-label={`Slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${i === slide ? "w-5 bg-electric" : "w-1.5 bg-background/60"}`} />
+              ))}
+            </div>
+          )}
+
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <div className="text-[10px] uppercase tracking-[0.3em] text-primary-glow">{d.region} · {d.country}</div>
             <h2 className="font-display text-3xl md:text-4xl font-semibold">{d.name}</h2>
@@ -223,83 +255,187 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
           </div>
         </div>
 
-        <div className="p-6 grid gap-6 md:grid-cols-[1.4fr_1fr]">
-          <div>
-            <p className="text-sm leading-relaxed">{wiki?.extract || d.blurb}</p>
+        {tab === "overview" && (
+          <div className="p-6 grid gap-6 md:grid-cols-[1.4fr_1fr]">
+            <div>
+              <p className="text-sm leading-relaxed">{wiki?.extract || d.blurb}</p>
 
-            {gallery.length > 0 && (
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                {gallery.map((src, i) => (
-                  <img key={i} src={src} alt={`${d.name} ${i + 2}`} loading="lazy" className="aspect-[4/3] w-full rounded-xl object-cover border border-border/60" />
+              {gallery.length > 0 && (
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  {gallery.map((src, i) => (
+                    <img key={i} src={src} alt={`${d.name} ${i + 2}`} loading="lazy" className="aspect-[4/3] w-full rounded-xl object-cover border border-border/60" />
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {d.vibes.map((v) => (
+                  <span key={v} className="rounded-full border border-primary/40 bg-primary/10 text-primary-glow px-3 py-1 text-xs">
+                    #{v}
+                  </span>
                 ))}
               </div>
-            )}
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {d.vibes.map((v) => (
-                <span key={v} className="rounded-full border border-primary/40 bg-primary/10 text-primary-glow px-3 py-1 text-xs">
-                  #{v}
-                </span>
-              ))}
+              <div className="mt-6 rounded-2xl border border-electric/30 bg-electric/5 p-4">
+                <div className="text-[10px] uppercase tracking-widest text-electric mb-2">H.E.R.I dossier · live</div>
+                {loadingDossier ? (
+                  <div className="text-xs text-muted-foreground">Scanning open sources…</div>
+                ) : dossier ? (
+                  <div className="space-y-3 text-sm">
+                    {dossier.weather && <div><b className="text-electric">Weather:</b> {dossier.weather}</div>}
+                    {dossier.bestTimeAdvice && <div><b className="text-electric">Best time:</b> {dossier.bestTimeAdvice}</div>}
+                    {dossier.safety && <div><b className="text-electric">Safety:</b> {dossier.safety}</div>}
+                    {dossier.tips.length > 0 && (
+                      <div>
+                        <b className="text-electric">Tips:</b>
+                        <ul className="mt-1 list-disc list-inside space-y-0.5 text-muted-foreground">
+                          {dossier.tips.map((t, i) => <li key={i}>{t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {dossier.feedback.length > 0 && (
+                      <div>
+                        <b className="text-electric">Traveler feedback:</b>
+                        <div className="mt-1 space-y-1">
+                          {dossier.feedback.map((f, i) => (
+                            <div key={i} className="text-xs italic text-muted-foreground border-l-2 border-electric/60 pl-2">"{f}"</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-xs text-muted-foreground">Dossier unavailable right now.</div>
+                )}
+              </div>
             </div>
 
-            {/* AI dossier */}
-            <div className="mt-6 rounded-2xl border border-electric/30 bg-electric/5 p-4">
-              <div className="text-[10px] uppercase tracking-widest text-electric mb-2">H.E.R.I dossier · live</div>
-              {loadingDossier ? (
-                <div className="text-xs text-muted-foreground">Scanning open sources…</div>
-              ) : dossier ? (
-                <div className="space-y-3 text-sm">
-                  {dossier.weather && <div><b className="text-electric">Weather:</b> {dossier.weather}</div>}
-                  {dossier.bestTimeAdvice && <div><b className="text-electric">Best time:</b> {dossier.bestTimeAdvice}</div>}
-                  {dossier.safety && <div><b className="text-electric">Safety:</b> {dossier.safety}</div>}
-                  {dossier.tips.length > 0 && (
-                    <div>
-                      <b className="text-electric">Tips:</b>
-                      <ul className="mt-1 list-disc list-inside space-y-0.5 text-muted-foreground">
-                        {dossier.tips.map((t, i) => <li key={i}>{t}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                  {dossier.feedback.length > 0 && (
-                    <div>
-                      <b className="text-electric">Traveler feedback:</b>
-                      <div className="mt-1 space-y-1">
-                        {dossier.feedback.map((f, i) => (
-                          <div key={i} className="text-xs italic text-muted-foreground border-l-2 border-electric/60 pl-2">"{f}"</div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-xs text-muted-foreground">Dossier unavailable right now.</div>
+            <div className="space-y-3">
+              <Stat k="Best season" v={d.bestTime} />
+              <Stat k="Currency" v={dossier?.currency || d.currency} />
+              <Stat k="Language" v={dossier?.languages || d.language} />
+              <Stat k="Coordinates" v={`${d.lat.toFixed(2)}°, ${d.lng.toFixed(2)}°`} />
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.name + " " + d.country)}`}
+                target="_blank" rel="noreferrer"
+                className="mt-2 block w-full text-center rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition"
+              >
+                Open in Maps →
+              </a>
+              {wiki?.pageUrl && (
+                <a href={wiki.pageUrl} target="_blank" rel="noreferrer"
+                  className="block w-full text-center rounded-full border border-border bg-surface/60 px-4 py-2 text-xs hover:bg-accent transition">
+                  Read on Wikipedia
+                </a>
               )}
             </div>
           </div>
+        )}
 
-          <div className="space-y-3">
-            <Stat k="Best season" v={d.bestTime} />
-            <Stat k="Currency" v={dossier?.currency || d.currency} />
-            <Stat k="Language" v={dossier?.languages || d.language} />
-            <Stat k="Coordinates" v={`${d.lat.toFixed(2)}°, ${d.lng.toFixed(2)}°`} />
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.name + " " + d.country)}`}
-              target="_blank" rel="noreferrer"
-              className="mt-2 block w-full text-center rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110 transition"
-            >
-              Open in Maps →
-            </a>
-            {wiki?.pageUrl && (
-              <a href={wiki.pageUrl} target="_blank" rel="noreferrer"
-                className="block w-full text-center rounded-full border border-border bg-surface/60 px-4 py-2 text-xs hover:bg-accent transition">
-                Read on Wikipedia
-              </a>
-            )}
-          </div>
-        </div>
+        {tab === "hotels" && (
+          <HotelsTab dest={d} hotels={dossier?.hotels ?? []} loading={loadingDossier} />
+        )}
+
+        {tab === "transport" && (
+          <TransportTab dest={d} options={dossier?.transport ?? []} loading={loadingDossier} />
+        )}
       </div>
     </div>
+  );
+}
+
+function HotelsTab({ dest, hotels, loading }: { dest: Destination; hotels: import("@/lib/dossier.functions").Hotel[]; loading: boolean }) {
+  if (loading) return <div className="p-8 text-sm text-muted-foreground">Fetching hotels near {dest.name}…</div>;
+  if (hotels.length === 0) return <div className="p-8 text-sm text-muted-foreground">No hotel data returned.</div>;
+  return (
+    <div className="p-6 space-y-3">
+      <div className="text-[10px] uppercase tracking-widest text-electric">Hotels near {dest.name} · aggregated intel</div>
+      {hotels.map((h, i) => {
+        const bookUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(h.name + " " + dest.name)}`;
+        return (
+          <div key={i} className="rounded-2xl border border-border/60 bg-surface/40 p-4 flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="font-display text-lg font-semibold">{h.name}</div>
+                <StarRow rating={h.rating} />
+                <span className="text-xs text-muted-foreground">({h.reviews.toLocaleString()} reviews)</span>
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">{h.area}</div>
+              <div className="text-sm mt-1.5">{h.highlight}</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">from</div>
+                <div className="font-display text-lg font-semibold text-electric">{h.pricePerNight}</div>
+                <div className="text-[10px] text-muted-foreground">per night</div>
+              </div>
+              <a href={bookUrl} target="_blank" rel="noreferrer"
+                className="rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110">
+                Book →
+              </a>
+            </div>
+          </div>
+        );
+      })}
+      <div className="text-[10px] text-muted-foreground italic pt-2">
+        Ratings & pricing indicative — booking opens on Booking.com for live availability.
+      </div>
+    </div>
+  );
+}
+
+function TransportTab({ dest, options, loading }: { dest: Destination; options: import("@/lib/dossier.functions").TransportOption[]; loading: boolean }) {
+  if (loading) return <div className="p-8 text-sm text-muted-foreground">Scanning routes to {dest.name}…</div>;
+  if (options.length === 0) return <div className="p-8 text-sm text-muted-foreground">No transport data returned.</div>;
+  const icon = (m: string) => m === "flight" ? "✈" : m === "train" ? "🚆" : m === "ship" ? "🚢" : "🚌";
+  const trackUrl = (m: string) =>
+    m === "flight" ? `https://www.flightradar24.com/data/airports/${dest.name.toLowerCase().replace(/\s+/g, "-")}`
+    : m === "train" ? `https://railradar.in/`
+    : m === "ship" ? `https://www.marinetraffic.com/en/ais/home/centerx:${dest.lng}/centery:${dest.lat}/zoom:8`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("bus terminal " + dest.name)}`;
+  return (
+    <div className="p-6 space-y-3">
+      <div className="text-[10px] uppercase tracking-widest text-electric">Transport to/from {dest.name} · live network</div>
+      {options.map((o, i) => (
+        <div key={i} className="rounded-2xl border border-border/60 bg-surface/40 p-4 flex flex-col md:flex-row md:items-center gap-4">
+          <div className="h-11 w-11 flex items-center justify-center rounded-xl bg-electric/10 border border-electric/30 text-xl">
+            {icon(o.mode)}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="font-display text-base font-semibold">{o.operator}</div>
+              <span className="text-[10px] uppercase tracking-widest rounded-full bg-primary/10 border border-primary/40 text-primary-glow px-2 py-0.5">{o.mode}</span>
+            </div>
+            <div className="text-sm text-muted-foreground">{o.route}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{o.schedule} · {o.duration}</div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">from</div>
+              <div className="font-display text-lg font-semibold text-electric">{o.price}</div>
+            </div>
+            <a href={trackUrl(o.mode)} target="_blank" rel="noreferrer"
+              className="rounded-full bg-gradient-to-r from-primary to-electric px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110">
+              Track →
+            </a>
+          </div>
+        </div>
+      ))}
+      <div className="text-[10px] text-muted-foreground italic pt-2">
+        Live tracking opens on Flightradar24, RailRadar, and MarineTraffic.
+      </div>
+    </div>
+  );
+}
+
+function StarRow({ rating }: { rating: number }) {
+  const full = Math.round(rating * 2) / 2;
+  return (
+    <span className="text-electric text-sm" aria-label={`${rating} out of 5`}>
+      {"★".repeat(Math.floor(full))}{full % 1 ? "½" : ""}
+      <span className="text-muted-foreground/40">{"★".repeat(5 - Math.ceil(full))}</span>
+      <span className="ml-1 text-xs text-foreground">{rating.toFixed(1)}</span>
+    </span>
   );
 }
 
