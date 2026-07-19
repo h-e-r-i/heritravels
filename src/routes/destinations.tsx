@@ -187,6 +187,8 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
   const [loadingDossier, setLoadingDossier] = useState(true);
   const [tab, setTab] = useState<"overview" | "hotels" | "transport">("overview");
   const [slide, setSlide] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+  const [fs, setFs] = useState(false);
   const getDossier = useServerFn(fetchDestinationDossier);
 
   useEffect(() => {
@@ -202,10 +204,23 @@ function DestinationModal({ destination: d, onClose }: { destination: Destinatio
 
   const slides = wiki?.images ?? [];
   useEffect(() => {
-    if (slides.length < 2) return;
+    if (!autoplay || slides.length < 2) return;
     const id = setInterval(() => setSlide((s) => (s + 1) % slides.length), 3800);
     return () => clearInterval(id);
-  }, [slides.length]);
+  }, [slides.length, autoplay]);
+
+  const prev = () => slides.length && setSlide((s) => (s - 1 + slides.length) % slides.length);
+  const next = () => slides.length && setSlide((s) => (s + 1) % slides.length);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prev();
+      else if (e.key === "ArrowRight") next();
+      else if (e.key === "Escape" && fs) setFs(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [slides.length, fs]);
 
   const gallery = wiki?.images.slice(1, 5) ?? [];
 
