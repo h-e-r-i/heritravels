@@ -9,7 +9,7 @@ export type WikiSummary = {
 };
 
 const MEM = new Map<string, WikiSummary>();
-const LS_PREFIX = "heri.wiki.v2:";
+const LS_PREFIX = "heri.wiki.v3:";
 
 function readCache(key: string): WikiSummary | null {
   if (MEM.has(key)) return MEM.get(key)!;
