@@ -87,7 +87,7 @@ export async function fetchDestinationWiki(name: string, country: string): Promi
 
     // Resolve to URLs (limit)
     const resolved: string[] = [];
-    for (const t of imgTitles.slice(0, 6)) {
+    for (const t of imgTitles.slice(0, 10)) {
       try {
         const r = await fetch(
           `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url&iiurlwidth=1200&titles=${encodeURIComponent(t)}`,
