@@ -108,10 +108,31 @@ export async function fetchDestinationWiki(name: string, country: string): Promi
     const hero = sum?.originalimage?.source ?? sum?.thumbnail?.source;
     if (hero) resolved.unshift(hero);
 
+    // Also pull extra images from Wikimedia Commons search — guarantees more variety
+    try {
+      const cR = await fetch(
+        `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch=${encodeURIComponent(name + " " + country)}&prop=imageinfo&iiprop=url|mime&iiurlwidth=1200`,
+      );
+      if (cR.ok) {
+        const cj = (await cR.json()) as {
+          query?: { pages?: Record<string, { title?: string; imageinfo?: Array<{ thumburl?: string; url?: string; mime?: string }> }> };
+        };
+        const pages = cj.query?.pages ?? {};
+        for (const p of Object.values(pages)) {
+          const t = p.title ?? "";
+          if (/(flag|coat|icon|logo|map|locator|symbol|seal)/i.test(t)) continue;
+          const info = p.imageinfo?.[0];
+          if (info?.mime && !/^image\/(jpeg|png|webp)$/i.test(info.mime)) continue;
+          const u = info?.thumburl ?? info?.url;
+          if (u) resolved.push(u);
+        }
+      }
+    } catch { /* ignore */ }
+
     const value: WikiSummary = {
       title: sum?.title ?? title,
       extract: sum?.extract ?? "",
-      images: Array.from(new Set(resolved)).slice(0, 8),
+      images: Array.from(new Set(resolved)).slice(0, 12),
       pageUrl: sum?.content_urls?.desktop?.page,
     };
     writeCache(key, value);
